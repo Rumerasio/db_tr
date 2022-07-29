@@ -31,14 +31,32 @@ UPDATE nation SET
 WHERE 1 = 1 
 AND name = "Japan";
 
+-- 데이터 검색 방법
+SELECT * FROM nation
+WHERE 1=1
+-- AND name like "U%"; -- 문자
+-- AND name like "%a";
+-- AND name like "%n%";
+-- AND people > 100000000; --숫자
+-- AND people between 50000000 and 70000000;
+-- AND nameKor is not null; --none data
+AND capital like "";
+
 
 -- 테이블 추가
-CREATE TABLE IF NOT EXISTS `china`.`nation` (
+CREATE TABLE IF NOT EXISTS `china`.`jsQuestionChoice` (
   `seq` INT NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(45) NULL,
-  `capital` VARCHAR(45) NULL,
-  `people` INT NULL,
-  PRIMARY KEY (`seq`))
+  `jsSurveyQuestion_seq` INT NOT NULL,
+  `choice` INT NULL,
+  `choiceContent` VARCHAR(45) NULL,
+  `choiceScore` INT NULL,
+  PRIMARY KEY (`seq`),
+  INDEX `fk_jsQuestionChoice_jsSurveyQuestion1_idx` (`jsSurveyQuestion_seq` ASC) VISIBLE,
+  CONSTRAINT `fk_jsQuestionChoice_jsSurveyQuestion1`
+    FOREIGN KEY (`jsSurveyQuestion_seq`)
+    REFERENCES `chinajsSurveySelected`.`jsSurveyQuestion` (`seq`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB
 ;
 
@@ -46,12 +64,14 @@ ENGINE = InnoDB
 INSERT INTO nation(
     name,
     capital,
+    nameKor,
     people
 )
 VALUES (
-	"China",
-    "Beijing",
-    1300000000
+	"Germany",
+    "Berlin",
+    "독일",
+    83883587
 )
 ;
 
