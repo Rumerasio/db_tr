@@ -69,7 +69,7 @@ INSERT INTO nation(
 )
 VALUES (
 	"Germany",
-    "Berlin",
+    "Berlin"
     "독일",
     83883587
 )
