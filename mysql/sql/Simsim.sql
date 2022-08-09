@@ -101,34 +101,31 @@ inner join jsSurveyName d on d.seq = a.jsSurveyName_seq
 ;
 
 -- 수정 화면
-SELECT 
+SELECT  -- 공통코드에서 가져와 숫자를 글로 표시하게 되는 것은 
 	a.nickname,
     a.dob,
-    b.name, -- 공통코드로 부터 불러온 내용(성별)
-    a.email,
-    c.name,	-- 공통코드로 부터 불러온 내용(이메일주소)
-    a.id,
-    d.name, -- 공통코드로 부터 불러온 내용(통신사)
-    a.phoneNum
+	a.gender,
+    a.email
+    ,a.emailDomain   
+    ,a.id
+	,a.phoneAgency
+    ,a.phoneNum
 FROM jsMember a
-inner join code b on b.seq = a.gender
-inner join code c on c.seq = a.emailDomain
-inner join code d on d.seq = a.phoneAgency
 WHERE 1=1
 AND a.seq=2
 ;
 
 -- 참여 테스트 기록
 SELECT 
-	b.seq,
+	a.seq,
     d.survey,
-    a.nickname,
+    b.nickname,
     c.resultTitle,
-    b.datetime
-FROM jsMember a
-inner join jsSurveyRecord b on a.seq = b.jsMember_seq AND a.seq = 2 -- 현재 수행하는 jsSurveyRecord_seq
-inner join jsSurveyResult c on c.scoreRangeStart <= b.totalScore AND c.scoreRangeEnd >= b.totalScore
-inner join jsSurveyName d on d.seq = b.jsSurveyName_seq
+    a.datetime
+FROM jsSurveyRecord a
+inner join jsMember b on b.seq = a.jsMember_seq AND b.seq = 2 -- 현재 사용자의 jsMember_seq 값
+inner join jsSurveyResult c on c.scoreRangeStart <= a.totalScore AND c.scoreRangeEnd >= a.totalScore
+inner join jsSurveyName d on d.seq = a.jsSurveyName_seq
 ;
 
 -- 즐겨찾기 페이지
