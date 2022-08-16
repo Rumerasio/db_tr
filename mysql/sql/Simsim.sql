@@ -85,6 +85,8 @@ SELECT
 FROM jsSurveyComment a
 WHERE 1=1
 AND a.jsSurveyName_seq = 5 -- 별자리 테스트(5) 코멘트 불러오기
+order by
+	datetime desc
 ;
 
 -- 테스트 메인.댓글 입력
@@ -120,7 +122,7 @@ inner join jsQuestionChoice c on b.seq = c.jsSurveyQuestion_seq
 ;
 
 -- 제출될 데이터 입력 쿼리
-INSERT INTO 
+-- INSERT INTO 
 
 -- 제출 (hidden)
 SELECT
@@ -134,9 +136,9 @@ AND a.jsSurveyRecord_seq = 2 -- 당시 생성된 jsSurveyRecord_seq 값
 
 -- 결과 페이지
 SELECT 
-	a.seq,
-    d.survey,
-    b.nickname,
+	a.seq
+    ,(SELECT survey FROM jsSurveyName aa WHERE aa.seq = a.jsSurveyName_seq) as SurveyName
+    ,b.nickname,
     a.totalScore,
     c.resultTitle,
     c.resultSmTitle,
@@ -145,7 +147,23 @@ SELECT
 FROM jsSurveyRecord a
 inner join jsMember b on b.seq = a.jsMember_seq AND a.seq = 2 -- 현재 수행하는 jsSurveyRecord_seq
 inner join jsSurveyResult c on c.scoreRangeStart <= a.totalScore AND c.scoreRangeEnd >= a.totalScore
-inner join jsSurveyName d on d.seq = a.jsSurveyName_seq
+;
+
+-- 결과 페이지 ver.2 ing
+SELECT 
+	a.seq
+    ,(SELECT survey FROM jsSurveyName aa WHERE aa.seq = a.jsSurveyName_seq) as SurveyName
+    ,b.nickname
+    ,sum(d.choosed) as total   
+    ,c.resultTitle,
+    c.resultSmTitle,
+    c.resultContent,
+    a.datetime
+FROM jsSurveyRecord a
+inner join jsMember b on b.seq = a.jsMember_seq AND a.seq = 2 -- 현재 수행하는 jsSurveyRecord_seq
+inner join jsSurveyResult c on c.scoreRangeStart <= a.totalScore AND c.scoreRangeEnd >= a.totalScore
+inner join jsSurveySelected d 
+	group by d.jsSurveyRecord_seq
 ;
 
 -- 수정 화면
@@ -200,20 +218,18 @@ inner join jsSurveyName c on c.seq = a.jsSurveyName_seq
 
 -- 
 SELECT 
-	d.seq, -- 테스트 기록 seq 
-    f.nickname,
-    a.survey,
+	d.seq -- 테스트 기록 seq 
+    ,(SELECT nickname FROM jsMember aa WHERE aa.seq = d.jsMember_seq) as nickname
+    ,a.survey,
     d.totalScore,
     e.question,
     e.choosed,
-    c.choiceScore,
-    d.datetime
+    c.choiceScore
+    ,d.datetime
 FROM jsSurveyName a
 inner join jsSurveyQuestion b on b.jsSurveyName_seq = a.seq
 inner join jsQuestionChoice c on c.jsSurveyQuestion_seq = b.seq
 inner join jsSurveyRecord d on d.jsSurveyName_seq = a.seq
 inner join jsSurveySelected e on e.jsSurveyRecord_seq = d.seq AND e.question = b.seq AND e.choosed =  c.choice
-
-inner join jsMember f on f.seq = d.jsMember_seq
 ;
 
