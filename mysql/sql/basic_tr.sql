@@ -83,3 +83,5 @@ SELECT
     nameKor
 FROM nation
 ;
+
+-- UNION  // UNION ALL    union 은 중복데이터를 하나로 축약해서 보인다. UNION ALL은 중복이고 뭐고 조건이 맞는다면 다 뽑는다.
