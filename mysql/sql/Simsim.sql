@@ -1,5 +1,7 @@
 use china;
 
+-- 테이블 추가
+
 -- 공통코드 목록
 SELECT
 	a.seq,
