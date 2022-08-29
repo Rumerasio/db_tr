@@ -5,7 +5,7 @@ use china;
 -- 공통코드 목록
 SELECT
 	a.seq,
-    a.name,
+    a.name as codeGroup,
     b.seq,
     b.name
 FROM codeGroup a
