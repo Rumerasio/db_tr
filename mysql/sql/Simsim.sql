@@ -2,16 +2,35 @@ use china;
 
 -- 테이블 추가
 
--- 공통코드 목록
+-- 공통코드그룹 목록
 SELECT
 	a.seq,
-    a.name as codeGroup,
-    b.seq,
-    b.name
+	a.codeGroupCode,
+    a.codeGroupNameKor
+    ,(SELECT count(b.codeGroup_seq) FROM code b WHERE b.codeGroup_seq = a.seq) as codeNum  -- 서브쿼리 remember
+FROM codeGroup a
+;
+-- SELECT
+-- 	a.seq,
+-- 	a.codeGroupCode,
+--     a.codeGroupNameKor
+--     ,count(b.codeGroup_seq) as codeNum
+-- FROM codeGroup a
+-- inner join code b on b.codeGroup_seq=a.seq
+-- 	group by b.codeGroup_seq
+-- ;
+
+-- 코드목록
+SELECT
+	b.seq,
+	a.codeGroupCode,
+    a.codeGroupNameKor,
+    b.codeAnother,
+    b.codeNameKor
+    ,b.codeNameEng  
 FROM codeGroup a
 left join code b on b.codeGroup_seq = a.seq
 ;
-
 
 -- 로그인 화면 
 SELECT
