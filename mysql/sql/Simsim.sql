@@ -19,17 +19,44 @@ FROM codeGroup a
 -- inner join code b on b.codeGroup_seq=a.seq
 -- 	group by b.codeGroup_seq
 -- ;
-
+-- 코드그룹 입력
+INSERT INTO codeGroup(
+    codeGroupCode,
+    codeGroupCodeAnother,
+    codeGroupNameKor
+    ,codeGroupNameEng
+    ,useNy
+    ,turn
+    ,content
+    ,delNy
+    ,varcharType1
+    ,varcharType2
+    ,varcharType3
+    ,intType1
+    ,intType2
+    ,intType3
+    ,registerDateTime
+    ,modifyDateTime
+)
+VALUES (
+	
+)
+;
 -- 코드목록
 SELECT
-	b.seq,
-	a.codeGroupCode,
-    a.codeGroupNameKor,
-    b.codeAnother,
-    b.codeNameKor
-    ,b.codeNameEng  
+	b.seq
+	,a.seq as codeGroup_seq
+	,a.codeGroupCode,
+	a.codeGroupNameKor,
+	a.codeGroupNameEng,
+	b.codeAnother,
+	b.codeNameKor
+	,b.codeNameEng
+	,b.useNy
+	,b.turn
 FROM codeGroup a
-left join code b on b.codeGroup_seq = a.seq
+inner join code b on b.codeGroup_seq = a.seq
+WHERE 1=1
 ;
 
 -- 로그인 화면 
@@ -175,7 +202,7 @@ SELECT
 	a.seq
     ,(SELECT survey FROM jsSurveyName aa WHERE aa.seq = a.jsSurveyName_seq) as SurveyName
     ,b.nickname
-    ,sum(d.choosed) as total   
+    ,sum(d.choosed) as total 
     ,c.resultTitle,
     c.resultSmTitle,
     c.resultContent,
@@ -254,3 +281,22 @@ inner join jsSurveyRecord d on d.jsSurveyName_seq = a.seq
 inner join jsSurveySelected e on e.jsSurveyRecord_seq = d.seq AND e.question = b.seq AND e.choosed =  c.choice
 ;
 
+-- 관리자 멤버목록
+SELECT
+	a.seq
+    ,a.nickname
+    ,a.dob
+    ,b.codeNameKor
+    ,a.phoneAgency
+    ,a.phoneNum
+    ,a.email
+    ,a.emailInsert
+    ,a.emailDomain
+    ,a.id
+    ,a.password
+    ,a.datetime
+    ,a.delNy
+FROM jsMember a 
+inner join code b on b.codeAnother = a.gender
+WHERE 1=1
+;
