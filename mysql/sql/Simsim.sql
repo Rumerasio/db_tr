@@ -100,10 +100,10 @@ SELECT
     a.surveyPhrase -- +사진
 FROM jsSurveyName a
 WHERE 1=1
-AND a.seq = 2
-OR a.seq = 3
-OR a.seq = 4
-OR a.seq = 5
+-- AND a.seq = 2
+-- OR a.seq = 3
+-- OR a.seq = 4
+-- OR a.seq = 5
 ;
 
 -- 메인 페이지.하단(다른 컨텐츠)
@@ -284,19 +284,21 @@ inner join jsSurveySelected e on e.jsSurveyRecord_seq = d.seq AND e.question = b
 -- 관리자 멤버목록
 SELECT
 	a.seq
-    ,a.nickname
-    ,a.dob
-    ,b.codeNameKor
-    ,a.phoneAgency
-    ,a.phoneNum
-    ,a.email
-    ,a.emailInsert
-    ,a.emailDomain
-    ,a.id
-    ,a.password
-    ,a.datetime
-    ,a.delNy
+	,a.nickname
+	,a.dob
+	,b.codeNameKor
+	,a.phoneAgency
+	,a.phoneNum
+	,a.email
+	,a.emailInsert
+	,a.emailDomain
+	,a.id
+	,a.password
+	,a.datetime
+	,a.delNy
 FROM jsMember a 
 inner join code b on b.codeAnother = a.gender
 WHERE 1=1
+order by
+	a.seq asc
 ;
