@@ -1,5 +1,22 @@
 use china;
 
+CREATE TABLE IF NOT EXISTS `china`.`Upload` (
+  `seq` INT NOT NULL AUTO_INCREMENT,
+  `pseq` INT NULL COMMENT '연결된 parent seq',
+  `type` INT NULL,
+  `defaultNy` TINYINT NULL,
+  `sort` INT NULL,
+  `path` VARCHAR(500) NULL,
+  `originalName` VARCHAR(45) NULL,
+  `uuidName` VARCHAR(100) NULL,
+  `ext` VARCHAR(45) NULL,
+  `regIp` VARCHAR(45) NULL,
+  `regSeq` INT NULL,
+  `regDeviceCd` INT(11) NULL,
+  `regDateTime` DATETIME NULL,
+  `regDateTimeSvr` DATETIME NULL,
+  PRIMARY KEY (`seq`))
+;
 -- 테이블 추가
 
 -- 공통코드그룹 목록
@@ -122,7 +139,7 @@ SELECT
     ,a.likeNum
 FROM jsSurveyName a
 WHERE 1=1
-AND a.seq =5 -- 별자리 테스트(5)
+AND a.snSeq =5 -- 별자리 테스트(5)
 ;
 
 -- 테스트 메인.댓글
@@ -165,8 +182,9 @@ SELECT
     c.choiceContent
 FROM jsSurveyName a
 -- left join jsSurveyQuestion b on b.jsSurveyName_seq = a.seq
-inner join jsSurveyQuestion b on b.jsSurveyName_seq = a.seq
-inner join jsQuestionChoice c on b.seq = c.jsSurveyQuestion_seq
+inner join jsSurveyQuestion b on b.jsSurveyName_snSeq = a.snSeq
+inner join jsQuestionChoice c on b.sqSeq = c.jsSurveyQuestion_sqSeq
+AND snSeq=1
 ;
 
 -- 제출될 데이터 입력 쿼리
@@ -174,18 +192,18 @@ inner join jsQuestionChoice c on b.seq = c.jsSurveyQuestion_seq
 
 -- 제출 (hidden)
 SELECT
-	a.seq
-	,a.question
-    ,a.choosed
+	a.ssSeq
+	,a.ssQuestion
+    ,a.ssChoosed
 FROM jsSurveySelected a
 WHERE 1=1
-AND a.jsSurveyRecord_seq = 2 -- 당시 생성된 jsSurveyRecord_seq 값
+AND a.jsSurveyRecord_srcSeq = 2 -- 당시 생성된 jsSurveyRecord_seq 값
 ;
 
 -- 결과 페이지
 SELECT 
-	a.seq
-    ,(SELECT survey FROM jsSurveyName aa WHERE aa.seq = a.jsSurveyName_seq) as SurveyName
+	a.srcSeq
+    ,(SELECT survey FROM jsSurveyName aa WHERE aa.snSeq = a.jsSurveyName_snSeq) as SurveyName
     ,b.nickname,
     a.totalScore,
     c.resultTitle,
@@ -193,25 +211,25 @@ SELECT
     c.resultContent,
     a.datetime
 FROM jsSurveyRecord a
-inner join jsMember b on b.seq = a.jsMember_seq AND a.seq = 2 -- 현재 수행하는 jsSurveyRecord_seq
+inner join jsMember b on b.seq = a.jsMember_seq AND a.srcSeq = 2 -- 현재 수행하는 jsSurveyRecord_seq
 inner join jsSurveyResult c on c.scoreRangeStart <= a.totalScore AND c.scoreRangeEnd >= a.totalScore
 ;
 
 -- 결과 페이지 ver.2 ing
 SELECT 
-	a.seq
-    ,(SELECT survey FROM jsSurveyName aa WHERE aa.seq = a.jsSurveyName_seq) as SurveyName
+	a.srcSeq
+    ,(SELECT survey FROM jsSurveyName aa WHERE aa.snSeq = a.jsSurveyName_snSeq) as SurveyName
     ,b.nickname
-    ,sum(d.choosed) as total 
+    ,(SELECT sum(a.choiceScore) FROM jsQuestionChoice a inner join jsSurveyRecord c on c.srcSeq=19 inner join jsSurveyQuestion d inner join jsSurveySelected b on  c.srcSeq = b.jsSurveyRecord_srcSeq WHERE 1=1 AND c.jsSurveyName_snSeq = d.jsSurveyName_snSeq AND b.ssQuestion = d.question AND d.sqSeq = a.jsSurveyQuestion_sqSeq AND a.choice = b.ssChoosed) as total
     ,c.resultTitle,
     c.resultSmTitle,
     c.resultContent,
     a.datetime
 FROM jsSurveyRecord a
-inner join jsMember b on b.seq = a.jsMember_seq AND a.seq = 2 -- 현재 수행하는 jsSurveyRecord_seq
+inner join jsMember b on b.seq = a.jsMember_seq AND a.srcSeq = 2 -- 현재 수행하는 jsSurveyRecord_seq
 inner join jsSurveyResult c on c.scoreRangeStart <= a.totalScore AND c.scoreRangeEnd >= a.totalScore
 inner join jsSurveySelected d 
-	group by d.jsSurveyRecord_seq
+	group by d.jsSurveyRecord_srcSeq
 ;
 
 -- 수정 화면
@@ -231,42 +249,57 @@ AND a.seq=2
 
 -- 참여 테스트 기록
 SELECT 
-	a.seq,
+	a.srcSeq,
     d.survey,
     b.nickname,
     c.resultTitle,
     a.datetime
 FROM jsSurveyRecord a
-inner join jsMember b on b.seq = a.jsMember_seq AND b.seq = 2 -- 현재 사용자의 jsMember_seq 값
+inner join jsMember b on b.seq = a.jsMember_seq 
 inner join jsSurveyResult c on c.scoreRangeStart <= a.totalScore AND c.scoreRangeEnd >= a.totalScore
-inner join jsSurveyName d on d.seq = a.jsSurveyName_seq
+inner join jsSurveyName d on d.snSeq = a.jsSurveyName_snSeq
+	AND b.seq = 2 -- 현재 사용자의 jsMember_seq 값
 ;
-
+-- 참여 테스트 기록 ver.2
+SELECT 
+	a.srcSeq
+    ,(SELECT survey FROM jsSurveyName d WHERE d.snSeq = a.jsSurveyName_snSeq) as survey
+    ,nickname
+    ,(SELECT resultTitle FROM jsSurveyResult c WHERE c.scoreRangeStart <= a.totalScore AND c.scoreRangeEnd >= a.totalScore) as resultTitle
+    ,a.datetime
+FROM jsSurveyRecord a
+inner join jsMember b on b.seq = a.jsMember_seq 
+	AND b.seq = 2 -- 현재 사용자의 jsMember_seq 값
+;
+-- ,(SELECT survey FROM jsSurveyName aa WHERE aa.seq = a.jsSurveyName_seq) as SurveyName
 -- 즐겨찾기 페이지
 SELECT 
-	a.seq,
-    b.nickname,
-    c.survey
+	a.seq
+    ,b.nickname
+    ,c.survey
 FROM jsFavorite a
-inner join jsMember b on b.seq = a.jsMember_seq
-inner join jsSurveyName c on c.seq = a.jsSurveyName_seq
+inner join jsSurveyName c on c.snSeq = a.jsSurveyName_snSeq
+inner join jsMember b  on b.seq = a.jsMember_seq
+WHERE b.seq =3
 ;
 
 -- 내 댓글 페이지
 SELECT
-	a.seq,
+	a.scSeq,
     c.survey,
     a.nickname,
     a.commentContent,
     a.datetime
 FROM jsSurveyComment a
-inner join jsMember b on b.seq = a.jsSurveyName_seq AND a.jsMember_seq =2
-inner join jsSurveyName c on c.seq = a.jsSurveyName_seq
+inner join jsMember b on b.seq = a.jsSurveyName_snSeq
+inner join jsSurveyName c on c.snSeq = a.jsSurveyName_snSeq
+WHERE 1=1
+	AND a.jsMember_seq =2
 ;
 
 -- 
 SELECT 
-	d.seq -- 테스트 기록 seq 
+	d.srcSeq -- 테스트 기록 seq 
     ,(SELECT nickname FROM jsMember aa WHERE aa.seq = d.jsMember_seq) as nickname
     ,a.survey,
     d.totalScore,
@@ -275,10 +308,10 @@ SELECT
     c.choiceScore
     ,d.datetime
 FROM jsSurveyName a
-inner join jsSurveyQuestion b on b.jsSurveyName_seq = a.seq
-inner join jsQuestionChoice c on c.jsSurveyQuestion_seq = b.seq
-inner join jsSurveyRecord d on d.jsSurveyName_seq = a.seq
-inner join jsSurveySelected e on e.jsSurveyRecord_seq = d.seq AND e.question = b.seq AND e.choosed =  c.choice
+inner join jsSurveyQuestion b on b.jsSurveyName_snSeq = a.snSeq
+inner join jsQuestionChoice c on c.jsSurveyQuestion_sqSeq = b.sqSeq
+inner join jsSurveyRecord d on d.jsSurveyName_snSeq = a.snSeq
+inner join jsSurveySelected e on e.jsSurveyRecord_srcSeq = d.srcSeq AND e.question = b.sqSeq AND e.choosed =  c.choice
 ;
 
 -- 관리자 멤버목록
